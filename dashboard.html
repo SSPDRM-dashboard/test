@@ -2,10 +2,11 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Police Task Dashboard</title>
+<title>Dashboard Penugasan Anggota</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
+
 body{
 font-family:Arial;
 margin:20px;
@@ -16,7 +17,7 @@ h1{
 text-align:center;
 }
 
-#controls{
+#filterBox{
 text-align:center;
 margin-bottom:30px;
 }
@@ -37,7 +38,7 @@ canvas{
 background:white;
 padding:20px;
 border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,0.1);
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
 }
 
 table{
@@ -54,9 +55,10 @@ text-align:center;
 }
 
 th{
-background:#2c7be5;
+background:#1976d2;
 color:white;
 }
+
 </style>
 </head>
 
@@ -64,34 +66,43 @@ color:white;
 
 <h1>Dashboard Penugasan Anggota</h1>
 
-<div id="controls">
+<div id="filterBox">
+
 Filter Daerah :
+
 <select id="districtFilter">
 <option value="All">All</option>
 </select>
+
 </div>
 
 <div id="charts">
+
 <canvas id="districtChart" width="400" height="300"></canvas>
 <canvas id="genderChart" width="400" height="300"></canvas>
+
 </div>
 
-<h2>Senarai Data</h2>
+<h2>Data Penugasan</h2>
 
 <table id="dataTable">
+
 <thead></thead>
+
 <tbody></tbody>
+
 </table>
 
 <script>
 
-const API_URL="https://script.google.com/macros/s/AKfycbzfjAcjviKkcELTJOTebU8LsD_Sy5x0QBobU-ypMAM/dev";
+const API_URL="https://script.google.com/macros/s/AKfycbz0bi4XtleUL3g7jsly4xsOgzjT327Bt7ueX6clls3ml19tgeQ8NEiC_BzCHnCDrkM2/exec";
 
 let rawData=[];
 
 async function loadData(){
 
 const res=await fetch(API_URL);
+
 const data=await res.json();
 
 rawData=data;
@@ -109,10 +120,15 @@ const select=document.getElementById("districtFilter");
 const daerah=[...new Set(rawData.map(d=>d["SILA PILIH DAERAH YANG BERTUGAS"]))];
 
 daerah.forEach(d=>{
+
 let option=document.createElement("option");
+
 option.value=d;
+
 option.text=d;
+
 select.appendChild(option);
+
 });
 
 }
@@ -150,11 +166,12 @@ count[daerah]=(count[daerah]||0)+1;
 });
 
 let labels=Object.keys(count);
+
 let values=Object.values(count);
 
-if(window.districtChart)window.districtChart.destroy();
+if(window.chart1)window.chart1.destroy();
 
-window.districtChart=new Chart(document.getElementById("districtChart"),{
+window.chart1=new Chart(document.getElementById("districtChart"),{
 
 type:"bar",
 
@@ -164,10 +181,6 @@ datasets:[{
 label:"Jumlah Penugasan",
 data:values
 }]
-},
-
-options:{
-responsive:true
 }
 
 });
@@ -180,18 +193,19 @@ let count={};
 
 data.forEach(d=>{
 
-let gender=d["JANTINA"];
+let g=d["JANTINA"];
 
-count[gender]=(count[gender]||0)+1;
+count[g]=(count[g]||0)+1;
 
 });
 
 let labels=Object.keys(count);
+
 let values=Object.values(count);
 
-if(window.genderChart)window.genderChart.destroy();
+if(window.chart2)window.chart2.destroy();
 
-window.genderChart=new Chart(document.getElementById("genderChart"),{
+window.chart2=new Chart(document.getElementById("genderChart"),{
 
 type:"pie",
 
@@ -200,10 +214,6 @@ labels:labels,
 datasets:[{
 data:values
 }]
-},
-
-options:{
-responsive:true
 }
 
 });
@@ -212,14 +222,15 @@ responsive:true
 
 function createTable(data){
 
-const tableHead=document.querySelector("#dataTable thead");
-const tableBody=document.querySelector("#dataTable tbody");
+const thead=document.querySelector("#dataTable thead");
+
+const tbody=document.querySelector("#dataTable tbody");
 
 let headers=Object.keys(data[0]);
 
-tableHead.innerHTML="<tr>"+headers.map(h=>"<th>"+h+"</th>").join("")+"</tr>";
+thead.innerHTML="<tr>"+headers.map(h=>"<th>"+h+"</th>").join("")+"</tr>";
 
-tableBody.innerHTML="";
+tbody.innerHTML="";
 
 data.forEach(row=>{
 
@@ -227,7 +238,7 @@ let tr=document.createElement("tr");
 
 tr.innerHTML=headers.map(h=>"<td>"+row[h]+"</td>").join("");
 
-tableBody.appendChild(tr);
+tbody.appendChild(tr);
 
 });
 
